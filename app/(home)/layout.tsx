@@ -6,9 +6,9 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-background">
+    <main>
       <Header />
       {children}
-    </div>
+    </main>
   );
 }

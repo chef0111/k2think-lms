@@ -3,9 +3,9 @@ import { LogosSection } from '@/modules/home/hero/logos-section';
 
 export default function Home() {
   return (
-    <main className="grow">
+    <section className="grow">
       <HeroSection />
       <LogosSection />
-    </main>
+    </section>
   );
 }
