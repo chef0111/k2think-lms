@@ -25,7 +25,7 @@ export default function CreateCourse() {
       <Card>
         <CardContent className="space-y-8 px-4">
           <CardHeader className="px-4">
-            <CardTitle>Basic Information</CardTitle>
+            <CardTitle className="text-2xl">Basic Information</CardTitle>
             <CardDescription>
               Provide basic information about the course
             </CardDescription>

@@ -87,11 +87,11 @@ model Course {
   id          String   @id @default(uuid())
   title       String
   description String
-  thumbnail     String
+  thumbnail   String
   duration    Int
   level       CourseLevel @default(Beginner)
   category    String
-  readme      Json
+  readme      String
   slug        String   @unique
   status      CourseStatus @default(Draft)
 

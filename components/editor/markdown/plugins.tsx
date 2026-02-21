@@ -77,7 +77,7 @@ export function Plugins() {
     <div className="relative flex h-full flex-col">
       <ToolbarPlugin>
         {({ blockType }) => (
-          <div className="vertical-align-middle sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
+          <div className="vertical-align-middle bg-muted/50 sticky top-0 z-10 flex items-center gap-2 overflow-auto border-b p-1">
             <HistoryToolbarPlugin />
             <BlockFormatDropDown>
               <FormatParagraph />
@@ -107,13 +107,11 @@ export function Plugins() {
       <div className="relative min-h-0 flex-1">
         <RichTextPlugin
           contentEditable={
-            <div className="">
-              <div className="" ref={onRef}>
-                <ContentEditable
-                  placeholder={placeholder}
-                  className="ContentEditable__root relative block h-full min-h-72 overflow-auto px-8 py-4 focus:outline-none"
-                />
-              </div>
+            <div className="h-full" ref={onRef}>
+              <ContentEditable
+                placeholder={placeholder}
+                className="ContentEditable__root relative block h-full min-h-72 overflow-auto px-8 py-4 focus:outline-none"
+              />
             </div>
           }
           ErrorBoundary={LexicalErrorBoundary}

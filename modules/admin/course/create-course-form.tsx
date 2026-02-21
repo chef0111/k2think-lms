@@ -1,8 +1,8 @@
 'use client';
 
 import z from 'zod';
-import { Activity, useCallback, useRef, useState } from 'react';
-import { useForm, useWatch, type Resolver } from 'react-hook-form';
+import { Activity, useRef, useState } from 'react';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CourseSchema } from '@/lib/validations';
 import { FieldGroup } from '@/components/ui/field';
@@ -19,12 +19,12 @@ import {
   courseStatus,
 } from '@/common/constants';
 import { SelectGroup, SelectItem } from '@/components/ui/select';
+import { FileUploader } from './file-uploader';
 
 type FormData = z.infer<typeof CourseSchema>;
 
 export function CreateCourseForm() {
   const editorRef = useRef<FormEditorMethods>(null);
-  const [editorKey, setEditorKey] = useState(0);
 
   const form = useForm<FormData>({
     resolver: zodResolver(CourseSchema) as Resolver<FormData>,
@@ -35,24 +35,24 @@ export function CreateCourseForm() {
       duration: 1,
       level: 'Beginner',
       category: '',
-      readme: '',
+      readme: '### Hello World 🚀',
       slug: '',
       status: 'Draft',
     },
   });
 
-  const selectedCategory = useWatch({
-    control: form.control,
-    name: 'category',
-  });
+  const [customCategory, setCustomCategory] = useState(false);
 
-  const handleEditorReset = useCallback(
-    () => setEditorKey((prev) => prev + 1),
-    []
-  );
+  const handleCategoryChange = (value: string) => {
+    if (value === 'Others') {
+      setCustomCategory(true);
+      form.setValue('category', '', { shouldValidate: false });
+    }
+  };
 
   const onSubmit = (data: FormData) => {
     alert(`Form submitted: ${JSON.stringify(data, null, 2)}`);
+    form.reset();
   };
 
   const generateSlug = () => {
@@ -93,7 +93,6 @@ export function CreateCourseForm() {
         <FormMarkdown
           control={form.control}
           editorRef={editorRef}
-          editorKey={editorKey}
           name="readme"
           label="Course Readme"
           description="Detailed information about the course, curriculum, requirements, etc."
@@ -105,16 +104,20 @@ export function CreateCourseForm() {
           control={form.control}
           label="Thumbnail"
           placeholder="Thumbnail URL"
-        />
+          itemClassName="items-center flex-col gap-2"
+        >
+          <FileUploader maxSize={1024 * 1024 * 5} />
+        </FormInput>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Activity mode={selectedCategory === 'Others' ? 'hidden' : 'visible'}>
+        <FieldGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Activity mode={customCategory ? 'hidden' : 'visible'}>
             <FormSelect
               control={form.control}
               name="category"
               label="Category"
               className="w-full"
               placeholder="Select a Category"
+              onValueChange={handleCategoryChange}
             >
               <SelectGroup>
                 {courseCategories.map((category) => (
@@ -125,7 +128,7 @@ export function CreateCourseForm() {
               </SelectGroup>
             </FormSelect>
           </Activity>
-          <Activity mode={selectedCategory === 'Others' ? 'visible' : 'hidden'}>
+          <Activity mode={customCategory ? 'visible' : 'hidden'}>
             <FormInput
               control={form.control}
               name="category"
@@ -139,9 +142,10 @@ export function CreateCourseForm() {
                 variant="outline"
                 size="icon"
                 className="shrink-0"
-                onClick={() =>
-                  form.setValue('category', '', { shouldValidate: true })
-                }
+                onClick={() => {
+                  setCustomCategory(false);
+                  form.setValue('category', '', { shouldValidate: true });
+                }}
                 title="Back to category select"
               >
                 <Undo2 />
@@ -191,7 +195,7 @@ export function CreateCourseForm() {
               ))}
             </SelectGroup>
           </FormSelect>
-        </div>
+        </FieldGroup>
 
         <div className="flex w-full items-center justify-end gap-2">
           <Button
