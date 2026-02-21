@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/empty';
 import { cn, formatBytes } from '@/lib/utils';
 import { ImageIcon, Trash2, UploadIcon } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface EmptyStateProps {
@@ -136,14 +135,9 @@ export function UploadingState({ progress, previewUrl }: UploadingStateProps) {
 interface UploadedStateProps {
   url: string;
   onRemove: () => void;
-  isDeleting: boolean;
 }
 
-export function UploadedState({
-  url,
-  onRemove,
-  isDeleting,
-}: UploadedStateProps) {
+export function UploadedState({ url, onRemove }: UploadedStateProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   return (
@@ -169,9 +163,8 @@ export function UploadedState({
           size="icon"
           className="absolute top-2 right-2 size-8"
           onClick={onRemove}
-          disabled={isDeleting}
         >
-          {isDeleting ? <Loader /> : <Trash2 className="size-4" />}
+          <Trash2 className="size-4" />
         </Button>
       )}
     </div>

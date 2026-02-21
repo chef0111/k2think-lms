@@ -26,9 +26,7 @@ interface FileUploaderProps {
   accept?: Accept;
   endpoint: keyof OurFileRouter;
   value?: string;
-  fileKey?: string;
   onChange?: (url: string) => void;
-  onKeyChange?: (key: string) => void;
 }
 
 export function FileUploader({
@@ -36,14 +34,13 @@ export function FileUploader({
   accept = { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] },
   endpoint,
   value,
-  fileKey,
   onChange,
-  onKeyChange,
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadedKey, setUploadedKey] = useState<string | null>(null);
 
   useEffect(() => {
     if (!value) {
@@ -51,10 +48,11 @@ export function FileUploader({
       setError(false);
       setProgress(0);
       setIsUploading(false);
+      setUploadedKey(null);
     }
   }, [value]);
 
-  const deleteFileMutation = useDeleteFile();
+  const deleteFile = useDeleteFile();
 
   const { startUpload } = useUploadThing(endpoint, {
     onUploadProgress: (p) => setProgress(p),
@@ -82,7 +80,7 @@ export function FileUploader({
         if (result && result[0]) {
           const { ufsUrl, key } = result[0];
           onChange?.(ufsUrl);
-          onKeyChange?.(key);
+          setUploadedKey(key);
         }
       } catch {
         setError(true);
@@ -90,32 +88,19 @@ export function FileUploader({
         setIsUploading(false);
       }
     },
-    [startUpload, onChange, onKeyChange]
+    [startUpload, onChange]
   );
 
   const handleRemove = useCallback(() => {
-    if (fileKey) {
-      deleteFileMutation.mutate(
-        { key: fileKey },
-        {
-          onSuccess: () => {
-            onChange?.('');
-            onKeyChange?.('');
-            setPreviewUrl(null);
-            setError(false);
-          },
-          onError: () => {
-            toast.error('Failed to delete file');
-          },
-        }
-      );
-    } else {
-      onChange?.('');
-      onKeyChange?.('');
-      setPreviewUrl(null);
-      setError(false);
+    onChange?.('');
+    setPreviewUrl(null);
+    setError(false);
+
+    if (uploadedKey) {
+      deleteFile.mutate({ key: uploadedKey });
+      setUploadedKey(null);
     }
-  }, [fileKey, deleteFileMutation, onChange, onKeyChange]);
+  }, [uploadedKey, deleteFile, onChange]);
 
   const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     if (fileRejections.length) {
@@ -144,7 +129,6 @@ export function FileUploader({
   });
 
   const displayUrl = value || previewUrl;
-  const isDeleting = deleteFileMutation.isPending;
 
   const renderContent = () => {
     if (error && !isUploading) {
@@ -154,13 +138,7 @@ export function FileUploader({
       return <UploadingState progress={progress} previewUrl={previewUrl} />;
     }
     if (displayUrl) {
-      return (
-        <UploadedState
-          url={displayUrl}
-          onRemove={handleRemove}
-          isDeleting={isDeleting}
-        />
-      );
+      return <UploadedState url={displayUrl} onRemove={handleRemove} />;
     }
     return (
       <EmptyState isDragActive={isDragActive} maxSize={maxSize} onOpen={open} />
