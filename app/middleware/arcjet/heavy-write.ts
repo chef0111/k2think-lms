@@ -7,7 +7,7 @@ const buildStandardAj = () =>
     slidingWindow({
       mode: 'LIVE',
       interval: '1m',
-      max: 3,
+      max: 5,
     })
   );
 

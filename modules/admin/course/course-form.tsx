@@ -33,6 +33,7 @@ type FormData = z.infer<typeof CourseSchema>;
 export function CourseForm() {
   const editorRef = useRef<FormEditorMethods>(null);
   const [editorKey, setEditorKey] = useState(0);
+  const [resetUploader, setResetUploader] = useState(false);
   const [customCategory, setCustomCategory] = useState(false);
 
   const form = useForm<FormData>({
@@ -72,6 +73,7 @@ export function CourseForm() {
   const resetForm = () => {
     handleFormReset();
     handleEditorReset();
+    setResetUploader(true);
   };
 
   const createCourse = useCreateCourse({
@@ -132,6 +134,7 @@ export function CourseForm() {
               endpoint="imageUploader"
               value={value}
               onChange={onChange}
+              reset={resetUploader}
             />
           )}
         </FormFileInput>

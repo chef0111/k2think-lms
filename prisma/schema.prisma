@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -18,9 +19,18 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  courses       Course[]
+  username        String?
+  displayUsername String?
+  role            String?
+  banned          Boolean?  @default(false)
+  banReason       String?
+  banExpires      DateTime?
+
+  courses Course[]
+
   @@unique([email])
   @@map("user")
+  @@unique([username])
 }
 
 model Session {
@@ -33,6 +43,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@index([userId])
@@ -84,21 +96,22 @@ enum CourseStatus {
 }
 
 model Course {
-  id          String   @id @default(uuid())
+  id          String       @id @default(uuid())
   title       String
   description String
   thumbnail   String
   duration    Int
-  level       CourseLevel @default(Beginner)
+  level       CourseLevel  @default(Beginner)
   category    String
   readme      String
-  slug        String   @unique
+  slug        String       @unique
   status      CourseStatus @default(Draft)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
   @@map("course")
 }

@@ -26,6 +26,7 @@ interface FileUploaderProps {
   accept?: Accept;
   endpoint: keyof OurFileRouter;
   value?: string;
+  reset?: boolean;
   onChange?: (url: string) => void;
 }
 
@@ -34,6 +35,7 @@ export function FileUploader({
   accept = { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] },
   endpoint,
   value,
+  reset,
   onChange,
 }: FileUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
@@ -41,16 +43,18 @@ export function FileUploader({
   const [error, setError] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadedKey, setUploadedKey] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!value) {
+    if (!value || reset) {
       setPreviewUrl(null);
       setError(false);
       setProgress(0);
       setIsUploading(false);
       setUploadedKey(null);
+      setFileName(null);
     }
-  }, [value]);
+  }, [value, reset]);
 
   const deleteFile = useDeleteFile();
 
@@ -73,6 +77,7 @@ export function FileUploader({
       setIsUploading(true);
       setProgress(0);
       setError(false);
+      setFileName(file.name);
       setPreviewUrl(URL.createObjectURL(file));
 
       try {
@@ -135,7 +140,13 @@ export function FileUploader({
       return <ErrorState onRetry={() => setError(false)} />;
     }
     if (isUploading) {
-      return <UploadingState progress={progress} previewUrl={previewUrl} />;
+      return (
+        <UploadingState
+          progress={progress}
+          previewUrl={previewUrl}
+          fileName={fileName}
+        />
+      );
     }
     if (displayUrl) {
       return <UploadedState url={displayUrl} onRemove={handleRemove} />;

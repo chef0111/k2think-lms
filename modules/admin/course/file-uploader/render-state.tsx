@@ -14,6 +14,8 @@ import {
 import { cn, formatBytes } from '@/lib/utils';
 import { ImageIcon, Trash2, UploadIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
+import { Ring } from '@/components/ui/ring';
 
 interface EmptyStateProps {
   isDragActive: boolean;
@@ -102,11 +104,16 @@ export function ErrorState({ onRetry }: ErrorStateProps) {
 interface UploadingStateProps {
   progress: number;
   previewUrl: string | null;
+  fileName: string | null;
 }
 
-export function UploadingState({ progress, previewUrl }: UploadingStateProps) {
+export function UploadingState({
+  progress,
+  previewUrl,
+  fileName,
+}: UploadingStateProps) {
   return (
-    <div className="flex flex-col items-center gap-4 p-8">
+    <div className="flex flex-col items-center gap-4 px-8 py-4">
       {previewUrl && (
         <div className="relative h-48 w-72 overflow-hidden rounded-md">
           <Image
@@ -118,15 +125,18 @@ export function UploadingState({ progress, previewUrl }: UploadingStateProps) {
         </div>
       )}
       <div className="flex w-full max-w-xs flex-col items-center gap-2">
-        <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
-          <div
-            className="bg-primary h-full rounded-full transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <Progress
+          value={progress}
+          className="ring-primary/20 h-2 w-full ring-3"
+        />
         <p className="text-muted-foreground text-sm">
           Uploading... {Math.round(progress)}%
         </p>
+        {fileName && (
+          <p className="text-muted-foreground max-w-xs truncate text-xs">
+            {fileName}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -141,7 +151,7 @@ export function UploadedState({ url, onRemove }: UploadedStateProps) {
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   return (
-    <div className="relative flex min-h-80 items-center justify-center p-4 py-8">
+    <div className="relative flex min-h-80 items-center justify-center p-4 py-4">
       {isImageLoading && <Skeleton className="absolute inset-4 rounded-md" />}
       <div className="relative aspect-auto overflow-hidden rounded-md">
         <Image
@@ -151,10 +161,11 @@ export function UploadedState({ url, onRemove }: UploadedStateProps) {
           width={400}
           onLoad={() => setIsImageLoading(false)}
           className={cn(
-            'max-h-64 w-auto object-contain transition-opacity duration-300',
+            'max-h-72 w-auto object-contain transition-opacity duration-300',
             isImageLoading ? 'opacity-0' : 'opacity-100'
           )}
         />
+        <Ring className="ring-3" />
       </div>
       {!isImageLoading && (
         <Button

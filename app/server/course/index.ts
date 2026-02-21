@@ -1,11 +1,11 @@
-import { authorized } from '@/app/middleware/auth';
+import { admin } from '@/app/middleware/admin';
 import { CourseSchema } from '@/lib/validations';
 import { createCourse as createCourseDAL } from './dal';
 import { standardSecurityMiddleware } from '@/app/middleware/arcjet/standard';
 import { heavyWriteSecurityMiddleware } from '@/app/middleware/arcjet/heavy-write';
 import { revalidatePath, revalidateTag } from 'next/cache';
 
-export const createCourse = authorized
+export const createCourse = admin
   .use(standardSecurityMiddleware)
   .use(heavyWriteSecurityMiddleware)
   .input(CourseSchema)
