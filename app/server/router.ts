@@ -1,5 +1,5 @@
 import { deleteFiles } from './uploadthing';
-import { createCourse, listCourses } from './course';
+import { createCourse, getCourse, listCourses, updateCourse } from './course';
 
 export const router = {
   uploadthing: {
@@ -8,5 +8,7 @@ export const router = {
   course: {
     create: createCourse,
     list: listCourses,
+    get: getCourse,
+    update: updateCourse,
   },
 };

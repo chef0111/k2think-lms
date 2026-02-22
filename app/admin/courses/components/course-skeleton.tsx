@@ -33,6 +33,10 @@ export const CourseSkeleton = () => {
             <Skeleton className="size-6" />
             <Skeleton className="h-4.5 w-16" />
           </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="size-6" />
+            <Skeleton className="h-4.5 w-14" />
+          </div>
         </div>
 
         <Skeleton className="h-32 w-full rounded-md" />

@@ -19,6 +19,7 @@ import {
   ArrowRight,
   EditIcon,
   EyeIcon,
+  GitPullRequestArrow,
   MoreVertical,
   SchoolIcon,
   TimerIcon,
@@ -98,6 +99,10 @@ export default function CourseCard({ data }: CourseCardProps) {
           <div className="flex items-center gap-2">
             <SchoolIcon className="text-primary! bg-primary/10 size-6 rounded-sm p-1" />
             <CardDescription>{data.level}</CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <GitPullRequestArrow className="text-primary! bg-primary/10 size-6 rounded-sm p-1" />
+            <CardDescription>{data.status}</CardDescription>
           </div>
         </div>
 

@@ -1,8 +1,8 @@
 import 'server-only';
 
 import { prisma } from '@/lib/prisma';
-import { CourseDTO, CoursesListDTO } from './dto';
-import { getPagination } from '../utils';
+import { Course, CoursesListDTO, CourseDTO, GetCourseSchema } from './dto';
+import { getPagination, validateOne } from '../utils';
 import { Prisma } from '@/generated/prisma/client';
 
 type CourseSort = 'newest' | 'oldest';
@@ -48,7 +48,7 @@ export class CourseDAL {
     }
   }
 
-  static async create(data: CourseDTO, userId: string) {
+  static async create(data: Course, userId: string) {
     return prisma.$transaction(async (tx) => {
       const course = await tx.course.create({
         data: { ...data, userId },
@@ -85,9 +85,33 @@ export class CourseDAL {
 
     return { courses, totalCourses };
   }
+
+  static async findById(id: string): Promise<CourseDTO> {
+    const data = await prisma.course.findUnique({
+      where: { id },
+      select: { ...this.selectFields, readme: true, category: true },
+    });
+
+    return validateOne(data, GetCourseSchema, 'Course');
+  }
+
+  static async update(id: string, data: Course) {
+    return prisma.$transaction(async (tx) => {
+      const course = await tx.course.update({
+        where: { id },
+        data,
+      });
+
+      return course;
+    });
+  }
 }
 
 export const createCourse = (...args: Parameters<typeof CourseDAL.create>) =>
   CourseDAL.create(...args);
 export const listCourses = (...args: Parameters<typeof CourseDAL.findMany>) =>
   CourseDAL.findMany(...args);
+export const getCourseById = (...args: Parameters<typeof CourseDAL.findById>) =>
+  CourseDAL.findById(...args);
+export const updateCourse = (...args: Parameters<typeof CourseDAL.update>) =>
+  CourseDAL.update(...args);
