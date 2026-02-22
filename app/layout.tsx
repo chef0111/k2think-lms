@@ -1,3 +1,5 @@
+import '@/lib/orpc.server';
+
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 import './globals.css';
@@ -5,6 +7,8 @@ import { ThemeProvider } from '@/context/theme-provider';
 import { Providers } from './providers';
 import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from '@/components/ui/sonner';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -41,7 +45,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NextTopLoader showSpinner={false} />
-          <Providers>{children}</Providers>
+          <Providers>
+            <NuqsAdapter>
+              <TooltipProvider>{children}</TooltipProvider>
+            </NuqsAdapter>
+          </Providers>
           <Toaster richColors />
         </ThemeProvider>
       </body>

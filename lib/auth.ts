@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { prisma } from './prisma';
-import { username, emailOTP } from 'better-auth/plugins';
+import { username, emailOTP, admin } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { PasswordSchema } from './validations';
@@ -41,6 +41,7 @@ export const auth = betterAuth({
               ...user,
               name: user.name || generatedName,
               image: user.image || generatedImage,
+              role: user.role || 'user',
             },
           };
         },
@@ -84,6 +85,7 @@ export const auth = betterAuth({
         });
       },
     }),
+    admin(),
     nextCookies(),
   ],
 });
