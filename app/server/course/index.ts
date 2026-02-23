@@ -10,7 +10,7 @@ import {
 import { standardSecurityMiddleware } from '@/app/middleware/arcjet/standard';
 import { heavyWriteSecurityMiddleware } from '@/app/middleware/arcjet/heavy-write';
 import { writeSecurityMiddleware } from '@/app/middleware/arcjet/write';
-import { CoursesListSchema, GetCourseSchema } from './dto';
+import { CoursesListSchema, GetCourseSchema, UpdateCourseSchema } from './dto';
 import { readSecurityMiddleware } from '@/app/middleware/arcjet/read';
 import z from 'zod';
 
@@ -51,16 +51,16 @@ export const getCourse = admin
 export const updateCourse = admin
   .use(standardSecurityMiddleware)
   .use(writeSecurityMiddleware)
-  .input(CourseSchema.extend({ id: z.string() }))
-  .output(GetCourseSchema)
+  .input(UpdateCourseSchema)
+  .output(UpdateCourseSchema)
   .handler(async ({ input }) => {
     const { id, ...data } = input;
-    const course = await updateCourseDAL(id, data);
+    const course = await updateCourseDAL(id, input);
 
     revalidateTag(`course:${course.id}`, 'max');
     revalidateTag('courses', 'max');
     revalidatePath('/admin/courses');
     revalidatePath(`/admin/courses/${id}/edit`);
 
-    return course;
+    return { id: course.id, ...data };
   });

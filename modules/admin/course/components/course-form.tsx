@@ -120,7 +120,7 @@ export function CourseForm({ course, isEdit = false }: CourseFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup className="px-4">
+      <FieldGroup>
         <FormInput
           control={form.control}
           name="title"

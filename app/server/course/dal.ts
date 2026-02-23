@@ -7,6 +7,8 @@ import {
   CourseDTO,
   GetCourseSchema,
   CourseListSchema,
+  UpdateCourseDTO,
+  UpdateCourseSchema,
 } from './dto';
 import { getPagination, validateOne, validatePaginated } from '../utils';
 import { Prisma } from '@/generated/prisma/client';
@@ -109,20 +111,43 @@ export class CourseDAL {
   static async findById(id: string): Promise<CourseDTO> {
     const data = await prisma.course.findUnique({
       where: { id },
-      select: { ...this.selectFields, readme: true, category: true },
+      select: {
+        ...this.selectFields,
+        readme: true,
+        category: true,
+        chapters: {
+          orderBy: { position: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            position: true,
+            lessons: {
+              orderBy: { position: 'asc' },
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                thumbnail: true,
+                video: true,
+                position: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     return validateOne(data, GetCourseSchema, 'Course');
   }
 
-  static async update(id: string, data: Course) {
+  static async update(id: string, data: UpdateCourseDTO) {
     return prisma.$transaction(async (tx) => {
       const course = await tx.course.update({
         where: { id },
         data,
       });
 
-      return course;
+      return validateOne(course, UpdateCourseSchema, 'Course');
     });
   }
 }
