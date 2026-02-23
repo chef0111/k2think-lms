@@ -11,6 +11,7 @@ import { orpc } from '@/lib/orpc';
 import { getQueryClient } from '@/lib/query/hydration';
 import { CourseForm } from '@/modules/admin/course/components/course-form';
 import { ArrowLeft } from 'lucide-react';
+import { Route } from 'next';
 import Link from 'next/link';
 
 export default async function EditCourse({ params }: RouteParams) {
@@ -31,7 +32,15 @@ export default async function EditCourse({ params }: RouteParams) {
             <ArrowLeft />
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">Edit Course</h1>
+        <h1 className="text-2xl font-bold">
+          Edit Course:{' '}
+          <Link
+            href={`/courses/${course.slug}` as Route}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            {course.title}
+          </Link>
+        </h1>
       </div>
 
       <Tabs defaultValue="basic" className="space-y-2">

@@ -1,8 +1,14 @@
 import 'server-only';
 
 import { prisma } from '@/lib/prisma';
-import { Course, CoursesListDTO, CourseDTO, GetCourseSchema } from './dto';
-import { getPagination, validateOne } from '../utils';
+import {
+  Course,
+  CoursesListDTO,
+  CourseDTO,
+  GetCourseSchema,
+  CourseListSchema,
+} from './dto';
+import { getPagination, validateOne, validatePaginated } from '../utils';
 import { Prisma } from '@/generated/prisma/client';
 
 type CourseSort = 'newest' | 'oldest';
@@ -59,7 +65,7 @@ export class CourseDAL {
   }
 
   static async findMany(params: QueryParams): Promise<CoursesListDTO> {
-    const { query, filter, sort, page, pageSize } = params;
+    const { page, pageSize, query, filter, sort } = params;
     const { offset, limit } = getPagination({ page, pageSize });
 
     const where: Prisma.CourseWhereInput = {
@@ -67,10 +73,20 @@ export class CourseDAL {
     };
 
     if (query) {
-      where.title = {
-        contains: query,
-        mode: 'insensitive',
-      };
+      where.OR = [
+        {
+          title: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+        {
+          description: {
+            contains: query,
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
 
     const courses = await prisma.course.findMany({
@@ -83,7 +99,11 @@ export class CourseDAL {
 
     const totalCourses = await prisma.course.count({ where });
 
-    return { courses, totalCourses };
+    return validatePaginated(
+      { courses, totalCourses },
+      CourseListSchema,
+      'Course'
+    );
   }
 
   static async findById(id: string): Promise<CourseDTO> {

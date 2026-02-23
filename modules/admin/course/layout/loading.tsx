@@ -20,22 +20,22 @@ export const CourseSkeleton = () => {
       </div>
       <CardContent className="flex h-36 flex-col gap-0! px-4">
         <div>
-          <Skeleton className="h-5 w-36" />
-          <Skeleton className="mt-2 h-4 w-72" />
+          <Skeleton className="h-5 w-64 max-w-full" />
+          <Skeleton className="mt-2 h-4 w-88 max-w-full" />
         </div>
 
-        <div className="mb-4 flex h-full items-end gap-x-5">
-          <div className="flex items-center gap-2">
+        <div className="mb-4 flex h-full items-end gap-x-4">
+          <div className="flex items-center gap-1.5">
             <Skeleton className="size-6" />
             <Skeleton className="h-4.5 w-6" />
           </div>
-          <div className="flex items-center gap-2">
-            <Skeleton className="size-6" />
-            <Skeleton className="h-4.5 w-16" />
-          </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Skeleton className="size-6" />
             <Skeleton className="h-4.5 w-14" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Skeleton className="size-6" />
+            <Skeleton className="h-4.5 w-10" />
           </div>
         </div>
 
