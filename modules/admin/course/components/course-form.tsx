@@ -135,7 +135,7 @@ export function CourseForm({ course, isEdit = false }: CourseFormProps) {
           itemClassName="items-center w-full gap-2"
         >
           <Button type="button" className="w-fit" onClick={generateSlug}>
-            Generate Slug <Sparkles />
+            <Sparkles /> Generate Slug
           </Button>
         </FormInput>
 
@@ -271,7 +271,7 @@ export function CourseForm({ course, isEdit = false }: CourseFormProps) {
             disabled={isPending || !form.formState.isDirty}
             onClick={resetForm}
           >
-            Reset <RotateCcw />
+            <RotateCcw /> Reset
           </Button>
           <Button
             type="submit"
@@ -285,13 +285,13 @@ export function CourseForm({ course, isEdit = false }: CourseFormProps) {
               </>
             ) : isEdit ? (
               <>
-                <span>Save Changes</span>
                 <SaveIcon />
+                <span>Save Changes</span>
               </>
             ) : (
               <>
-                <span>Create Course</span>
                 <PlusIcon />
+                <span>Create Course</span>
               </>
             )}
           </Button>

@@ -9,7 +9,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { orpc } from '@/lib/orpc';
 import { getQueryClient } from '@/lib/query/hydration';
-import { CourseForm } from '@/modules/admin/course/course-form';
+import { CourseForm } from '@/modules/admin/course/components/course-form';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 

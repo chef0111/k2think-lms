@@ -7,7 +7,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { TabsList, TabsTrigger, TabsContent, Tabs } from '@/components/ui/tabs';
-import { CourseForm } from '@/modules/admin/course/course-form';
+import { CourseForm } from '@/modules/admin/course/components/course-form';
 import { ArrowLeft } from 'lucide-react';
 
 export default function EditCourse() {
