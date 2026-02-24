@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import {
+  Active,
   DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  DraggableSyntheticListeners,
   KeyboardSensor,
+  Over,
   PointerSensor,
   rectIntersection,
   useSensor,
@@ -17,10 +18,8 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CourseDTO } from '@/app/server/course/dto';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,25 +27,15 @@ import { Button } from '@/components/ui/button';
 import { ChapterCard } from './chapter-card';
 import { LessonCard } from './lesson-card';
 import { PlusIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useReorderLesson } from '@/queries/lesson';
 import { useReorderChapter } from '@/queries/chapter';
 import { orpc } from '@/lib/orpc';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { SortableItem } from './sortable-item';
 
 interface CourseStructureProps {
   courseId: string;
-}
-
-interface SortableItemProps {
-  id: string;
-  children: (listeners: DraggableSyntheticListeners) => React.ReactNode;
-  className?: string;
-  data?: {
-    type: 'chapter' | 'lesson';
-    chapterId?: string;
-  };
 }
 
 type LessonItem = {
@@ -129,129 +118,112 @@ export const CourseStructure = ({ courseId }: CourseStructureProps) => {
     setActiveItem(null);
 
     const { active, over } = event;
-    const activeId = active.id;
-    const overId = over?.id;
-
-    if (!over || activeId === overId) return;
+    if (!over || active.id === over.id) return;
 
     const activeType = active.data.current?.type as 'chapter' | 'lesson';
     const overType = over.data.current?.type as 'chapter' | 'lesson';
-    const courseId = data.id;
 
     if (activeType === 'chapter') {
-      let targetChapterId: string | null = null;
+      handleChapterReorder(active, over, overType);
+    } else if (activeType === 'lesson' && overType === 'lesson') {
+      handleLessonReorder(active, over);
+    }
+  };
 
-      if (overType === 'chapter') {
-        targetChapterId = overId as string;
-      } else if (overType === 'lesson') {
-        targetChapterId = over.data.current?.chapterId ?? null;
-      }
+  const handleChapterReorder = (
+    active: Active,
+    over: Over,
+    overType: 'chapter' | 'lesson'
+  ) => {
+    const targetChapterId =
+      overType === 'chapter'
+        ? (over.id as string)
+        : (over.data.current?.chapterId ?? null);
 
-      if (!targetChapterId) {
-        toast.error('Could not determine the chapter');
-        return;
-      }
+    if (!targetChapterId) {
+      toast.error('Could not determine the chapter');
+      return;
+    }
 
-      const oldIndex = items.findIndex((item) => item.id === activeId);
-      const newIndex = items.findIndex((item) => item.id === targetChapterId);
+    const oldIndex = items.findIndex((c) => c.id === active.id);
+    const newIndex = items.findIndex((c) => c.id === targetChapterId);
 
-      if (oldIndex === -1 || newIndex === -1) {
-        toast.error('Could not determine the chapter');
-        return;
-      }
+    if (oldIndex === -1 || newIndex === -1) {
+      toast.error('Could not determine the chapter');
+      return;
+    }
 
-      const reorderedChapters = arrayMove(items, oldIndex, newIndex);
-      const updatedChapterState = reorderedChapters.map((chapter, index) => ({
-        ...chapter,
-        order: index + 1,
-      }));
+    const reordered = arrayMove(items, oldIndex, newIndex).map((c, i) => ({
+      ...c,
+      order: i + 1,
+    }));
 
-      const prevItems = [...items];
-      setItems(updatedChapterState);
+    const prevItems = [...items];
+    setItems(reordered);
 
-      const chaptersToUpdate = updatedChapterState.map((chapter) => ({
-        id: chapter.id,
-        position: chapter.order,
-      }));
-
-      const chapterPromise = reorderChapter.mutateAsync({
-        chapters: chaptersToUpdate,
-        courseId,
-      });
-
-      toast.promise(chapterPromise, {
+    toast.promise(
+      reorderChapter.mutateAsync({
+        courseId: data.id,
+        chapters: reordered.map(({ id, order }) => ({ id, position: order })),
+      }),
+      {
         loading: 'Reordering chapters...',
         success: 'Chapters reordered successfully',
         error: () => {
           setItems(prevItems);
           return 'Failed to reorder chapters';
         },
-      });
+      }
+    );
+  };
 
+  const handleLessonReorder = (active: Active, over: Over) => {
+    const chapterId = active.data.current?.chapterId as string;
+    const overChapterId = over.data.current?.chapterId as string;
+
+    if (!chapterId || chapterId !== overChapterId) {
+      toast.error('Lessons can only be reordered within the same chapter');
       return;
     }
 
-    if (activeType === 'lesson' && overType === 'lesson') {
-      const chapterId = active.data.current?.chapterId as string;
-      const overChapterId = over.data.current?.chapterId as string;
+    const chapterIndex = items.findIndex((c) => c.id === chapterId);
+    if (chapterIndex === -1) return;
 
-      if (!chapterId || chapterId !== overChapterId) {
-        toast.error('Lessons can only be reordered within the same chapter');
-        return;
-      }
+    const chapter = items[chapterIndex];
+    const oldIndex = chapter.lessons.findIndex((l) => l.id === active.id);
+    const newIndex = chapter.lessons.findIndex((l) => l.id === over.id);
 
-      const chapterIndex = items.findIndex((c) => c.id === chapterId);
-      if (chapterIndex === -1) return;
+    if (oldIndex === -1 || newIndex === -1) return;
 
-      const chapterToUpdate = items[chapterIndex];
-      const oldLessonIndex = chapterToUpdate.lessons.findIndex(
-        (l) => l.id === activeId
-      );
-      const newLessonIndex = chapterToUpdate.lessons.findIndex(
-        (l) => l.id === overId
-      );
+    const reorderedLessons = arrayMove(chapter.lessons, oldIndex, newIndex).map(
+      (l, i) => ({ ...l, order: i + 1 })
+    );
 
-      if (oldLessonIndex === -1 || newLessonIndex === -1) return;
+    const prevItems = [...items];
+    setItems((prev) =>
+      prev.map((c, i) =>
+        i === chapterIndex ? { ...c, lessons: reorderedLessons } : c
+      )
+    );
 
-      const reorderedLessons = arrayMove(
-        chapterToUpdate.lessons,
-        oldLessonIndex,
-        newLessonIndex
-      );
-      const updatedLessonState = reorderedLessons.map((lesson, index) => ({
-        ...lesson,
-        order: index + 1,
-      }));
-
-      const newItems = [...items];
-      newItems[chapterIndex] = {
-        ...chapterToUpdate,
-        lessons: updatedLessonState,
-      };
-
-      const prevItems = [...items];
-      setItems(newItems);
-
-      const lessonPromise = reorderLesson.mutateAsync({
-        lessons: updatedLessonState.map((l) => ({
-          id: l.id,
-          position: l.order,
-        })),
+    toast.promise(
+      reorderLesson.mutateAsync({
+        courseId: data.id,
         chapterId,
-        courseId,
-      });
-
-      toast.promise(lessonPromise, {
+        lessons: reorderedLessons.map(({ id, order }) => ({
+          id,
+          position: order,
+        })),
+      }),
+      {
         loading: 'Reordering lessons...',
         success: 'Lessons reordered successfully',
         error: () => {
           setItems(prevItems);
           return 'Failed to reorder lessons';
         },
-      });
-
-      return;
-    }
+      }
+    );
   };
 
   const toggleChapter = (chapterId: string) => {
@@ -362,37 +334,5 @@ export const CourseStructure = ({ courseId }: CourseStructureProps) => {
         )}
       </DragOverlay>
     </DndContext>
-  );
-};
-
-export const SortableItem = ({
-  id,
-  children,
-  className,
-  data,
-}: SortableItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, data });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      className={cn('touch-none', isDragging && 'opacity-40', className)}
-    >
-      {children(listeners)}
-    </div>
   );
 };
