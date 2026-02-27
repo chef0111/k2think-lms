@@ -28,6 +28,33 @@ export const PublicCoursesSchema = GetCourseSchema.omit({
   chapters: true,
 });
 
+export const CoursePreviewSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  thumbnail: z.string(),
+  level: z.enum(['Beginner', 'Intermediate', 'Advanced']),
+  duration: z.number(),
+  slug: z.string(),
+  category: z.string(),
+  readme: z.string(),
+  chapters: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      lessons: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          content: z.string().nullish(),
+          thumbnail: z.string().nullish(),
+          video: z.string().nullish(),
+        })
+      ),
+    })
+  ),
+});
+
 export const CoursesListSchema = z.object({
   courses: z.array(CourseListSchema),
   totalCourses: z.number(),
@@ -46,3 +73,4 @@ export type CourseListDTO = z.infer<typeof CourseListSchema>;
 export type CoursesListDTO = z.infer<typeof CoursesListSchema>;
 export type PublicCoursesDTO = z.infer<typeof PublicCoursesSchema>;
 export type PublicCourseListDTO = z.infer<typeof PublicCourseListSchema>;
+export type CoursePreviewDTO = z.infer<typeof CoursePreviewSchema>;

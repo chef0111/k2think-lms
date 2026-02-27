@@ -5,6 +5,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardTitle,
 } from '@/components/ui/card';
 import { Ring } from '@/components/ui/ring';
@@ -19,7 +20,7 @@ interface CourseCardProps {
 
 export default function CourseCard({ data }: CourseCardProps) {
   return (
-    <Card className="group relative flex flex-col border pt-3 pb-4">
+    <Card className="group relative flex flex-col gap-2 border pt-3 pb-0">
       <div className="absolute top-4.5 right-4.5 z-10">
         <Badge className="bg-primary text-primary-foreground rounded-sm">
           {data.level}
@@ -35,7 +36,7 @@ export default function CourseCard({ data }: CourseCardProps) {
         />
         <Ring className="ring-2" />
       </div>
-      <CardContent className="flex h-full flex-col items-stretch px-4">
+      <CardContent className="flex h-full flex-col items-stretch px-4 pb-0">
         <div>
           <Link
             href={`/courses/${data.slug}` as Route}
@@ -48,7 +49,7 @@ export default function CourseCard({ data }: CourseCardProps) {
           </CardDescription>
         </div>
 
-        <div className="my-4 flex h-full items-end gap-x-4">
+        <div className="mt-4 flex h-full items-end gap-x-4">
           <div className="flex items-center gap-1.5">
             <TimerIcon className="text-primary! bg-primary/10 size-6 rounded-sm p-1" />
             <CardDescription>{data.duration}h</CardDescription>
@@ -60,14 +61,15 @@ export default function CourseCard({ data }: CourseCardProps) {
             </CardDescription>
           </div>
         </div>
-
-        <Button size="lg" className="group/btn text-base" asChild>
+      </CardContent>
+      <CardFooter className="bg-muted/50 border-t p-3!">
+        <Button size="lg" className="group/btn w-full text-base" asChild>
           <Link href={`/courses/${data.slug}` as Route}>
             Learn More{' '}
             <ArrowRight className="transition-transform group-hover/btn:translate-x-1.5" />
           </Link>
         </Button>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }

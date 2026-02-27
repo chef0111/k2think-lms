@@ -1,26 +1,15 @@
 import 'server-only';
 
 import { prisma } from '@/lib/prisma';
-import {
-  Course,
-  CoursesListDTO,
-  CourseDTO,
-  GetCourseSchema,
-  CourseListSchema,
-  UpdateCourseDTO,
-  UpdateCourseSchema,
-  PublicCourseListDTO,
-  PublicCoursesSchema,
-} from './dto';
-import { getPagination, validateOne, validatePaginated } from '../utils';
+import { Course, UpdateCourseDTO } from './dto';
+import { getPagination } from '../utils';
 import { Prisma } from '@/generated/prisma/client';
-import { CourseSchema } from '@/lib/validations';
 
 type CourseSort = 'newest' | 'oldest';
 type CourseFilter = 'beginner' | 'intermediate' | 'advanced';
 type AdminCourseFilter = 'draft' | 'published' | 'archived' | CourseFilter;
 export class CourseDAL {
-  private static readonly select = {
+  private static readonly courseSelect = {
     id: true,
     title: true,
     description: true,
@@ -28,6 +17,16 @@ export class CourseDAL {
     level: true,
     duration: true,
     slug: true,
+  };
+
+  private static readonly chapterSelect = { id: true, title: true };
+
+  private static readonly lessonSelect = {
+    id: true,
+    title: true,
+    content: true,
+    thumbnail: true,
+    video: true,
   };
 
   private static getSortCriteria(
@@ -85,11 +84,11 @@ export class CourseDAL {
         data: { ...data, userId },
       });
 
-      return validateOne(course, CourseSchema, 'Course');
+      return course;
     });
   }
 
-  static async findMany(params: QueryParams): Promise<CoursesListDTO> {
+  static async findMany(params: QueryParams) {
     const { page, pageSize, query, filter, sort } = params;
     const { offset, limit } = getPagination({ page, pageSize });
 
@@ -117,23 +116,17 @@ export class CourseDAL {
     const courses = await prisma.course.findMany({
       where,
       orderBy: this.getSortCriteria(sort as CourseSort),
-      select: { ...this.select, status: true },
+      select: { ...this.courseSelect, status: true },
       skip: offset,
       take: limit,
     });
 
     const totalCourses = await prisma.course.count({ where });
 
-    return validatePaginated(
-      { courses, totalCourses },
-      CourseListSchema,
-      'Courses'
-    );
+    return { courses, totalCourses };
   }
 
-  static async publicFindMany(
-    params: QueryParams
-  ): Promise<PublicCourseListDTO> {
+  static async publicFindMany(params: QueryParams) {
     const { page, pageSize, query, filter, sort } = params;
     const { offset, limit } = getPagination({ page, pageSize });
 
@@ -162,51 +155,62 @@ export class CourseDAL {
     const courses = await prisma.course.findMany({
       where,
       orderBy: this.getSortCriteria(sort as CourseSort),
-      select: { ...this.select, category: true },
+      select: { ...this.courseSelect, category: true },
       skip: offset,
       take: limit,
     });
 
     const totalCourses = await prisma.course.count({ where });
 
-    return validatePaginated(
-      { courses, totalCourses },
-      PublicCoursesSchema,
-      'Courses'
-    );
+    return { courses, totalCourses };
   }
 
-  static async findById(id: string): Promise<CourseDTO> {
-    const data = await prisma.course.findUnique({
+  static async findById(id: string) {
+    const course = await prisma.course.findUnique({
       where: { id },
       select: {
-        ...this.select,
+        ...this.courseSelect,
         status: true,
         readme: true,
         category: true,
         chapters: {
           orderBy: { position: 'asc' },
           select: {
-            id: true,
-            title: true,
+            ...this.chapterSelect,
             position: true,
             lessons: {
               orderBy: { position: 'asc' },
-              select: {
-                id: true,
-                title: true,
-                content: true,
-                thumbnail: true,
-                video: true,
-                position: true,
-              },
+              select: { ...this.lessonSelect, position: true },
             },
           },
         },
       },
     });
 
-    return validateOne(data, GetCourseSchema, 'Course');
+    return course;
+  }
+
+  static async findBySlug(slug: string) {
+    const course = await prisma.course.findUnique({
+      where: { slug },
+      select: {
+        ...this.courseSelect,
+        readme: true,
+        category: true,
+        chapters: {
+          orderBy: { position: 'asc' },
+          select: {
+            ...this.chapterSelect,
+            lessons: {
+              orderBy: { position: 'asc' },
+              select: this.lessonSelect,
+            },
+          },
+        },
+      },
+    });
+
+    return course;
   }
 
   static async update(id: string, data: UpdateCourseDTO) {
@@ -216,7 +220,7 @@ export class CourseDAL {
         data,
       });
 
-      return validateOne(course, UpdateCourseSchema, 'Course');
+      return course;
     });
   }
 
@@ -238,6 +242,9 @@ export const listPublicCourses = (
 ) => CourseDAL.publicFindMany(...args);
 export const getCourseById = (...args: Parameters<typeof CourseDAL.findById>) =>
   CourseDAL.findById(...args);
+export const getCourseBySlug = (
+  ...args: Parameters<typeof CourseDAL.findBySlug>
+) => CourseDAL.findBySlug(...args);
 export const updateCourse = (...args: Parameters<typeof CourseDAL.update>) =>
   CourseDAL.update(...args);
 export const deleteCourse = (...args: Parameters<typeof CourseDAL.delete>) =>

@@ -16,7 +16,7 @@ import { FilterProvider } from '@/context/filter-provider';
 export default function Courses({ searchParams }: RouteParams) {
   return (
     <FilterProvider>
-      <section className="mx-auto max-w-7xl space-y-6 px-4">
+      <section className="mx-auto max-w-7xl space-y-6 px-6">
         <div className="mt-6 flex flex-col gap-1">
           <h1 className="text-xl font-bold">Explore Courses</h1>
           <p className="text-muted-foreground">
@@ -24,6 +24,7 @@ export default function Courses({ searchParams }: RouteParams) {
             goals
           </p>
         </div>
+
         <div className="flex h-10 flex-col items-center gap-3 sm:flex-row">
           <FilterInput placeholder="Search course..." />
           <SortSelect

@@ -7,6 +7,7 @@ import {
   createCourse as createCourseDAL,
   deleteCourse as deleteCourseDAL,
   getCourseById,
+  getCourseBySlug as getCourseBySlugDAL,
   listCourses as listCoursesDAL,
   listPublicCourses as listPublicCoursesDAL,
   updateCourse as updateCourseDAL,
@@ -15,6 +16,7 @@ import { standardSecurityMiddleware } from '@/app/middleware/arcjet/standard';
 import { heavyWriteSecurityMiddleware } from '@/app/middleware/arcjet/heavy-write';
 import { writeSecurityMiddleware } from '@/app/middleware/arcjet/write';
 import {
+  CoursePreviewSchema,
   CoursesListSchema,
   DeleteCourseSchema,
   GetCourseSchema,
@@ -78,8 +80,24 @@ export const getCourse = admin
   .use(readSecurityMiddleware)
   .input(z.object({ id: z.string() }))
   .output(GetCourseSchema)
-  .handler(async ({ input }) => {
+  .handler(async ({ input, errors }) => {
     const course = await getCourseById(input.id);
+    if (!course) {
+      throw errors.NOT_FOUND({ message: 'Course not found' });
+    }
+    return course;
+  });
+
+export const getCourseBySlug = authorized
+  .use(standardSecurityMiddleware)
+  .use(readSecurityMiddleware)
+  .input(z.object({ slug: z.string() }))
+  .output(CoursePreviewSchema)
+  .handler(async ({ input, errors }) => {
+    const course = await getCourseBySlugDAL(input.slug);
+    if (!course) {
+      throw errors.NOT_FOUND({ message: 'Course not found' });
+    }
     return course;
   });
 
@@ -96,6 +114,8 @@ export const updateCourse = admin
     revalidateTag('courses', 'max');
     revalidatePath('/admin/courses');
     revalidatePath(`/admin/courses/${id}/edit`);
+    revalidatePath(`/courses`);
+    revalidatePath(`/courses/${course.slug}`);
 
     return { id: course.id, ...data };
   });
