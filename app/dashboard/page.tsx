@@ -7,7 +7,7 @@ import { FilterProvider } from '@/context/filter-provider';
 import { FilterContent, FilterSelect, SortSelect } from '@/components/filter';
 import {
   CourseSortOptions,
-  CourseFilterOptions,
+  EnrolledCourseFilterOptions,
 } from '@/common/constants/filters';
 import {
   CourseCardSkeleton,
@@ -41,7 +41,7 @@ export default function Dashboard({ searchParams }: RouteParams) {
                     containerClassName="max-sm:w-full"
                   />
                   <FilterSelect
-                    filters={CourseFilterOptions}
+                    filters={EnrolledCourseFilterOptions}
                     className="max-sm:w-full"
                     containerClassName="max-sm:w-full"
                   />

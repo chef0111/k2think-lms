@@ -19,3 +19,9 @@ export const PublicCourseFilterOptions = [
   { label: 'Advanced', value: 'advanced' },
   { label: 'Unregistered', value: 'unregistered' },
 ];
+
+export const EnrolledCourseFilterOptions = [
+  { label: 'Beginner', value: 'beginner' },
+  { label: 'Intermediate', value: 'intermediate' },
+  { label: 'Advanced', value: 'advanced' },
+];
