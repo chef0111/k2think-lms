@@ -1,6 +1,7 @@
 export const CourseSortOptions = [
   { label: 'Newest', value: 'newest' },
   { label: 'Oldest', value: 'oldest' },
+  { label: 'Popular', value: 'popular' },
 ];
 
 export const CourseFilterOptions = [
@@ -16,4 +17,5 @@ export const PublicCourseFilterOptions = [
   { label: 'Beginner', value: 'beginner' },
   { label: 'Intermediate', value: 'intermediate' },
   { label: 'Advanced', value: 'advanced' },
+  { label: 'Unregistered', value: 'unregistered' },
 ];
