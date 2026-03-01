@@ -3,30 +3,48 @@ import { requireSession } from '@/lib/session';
 import { getQueryClient } from '@/lib/query/hydration';
 import { PublicCourseListDTO } from '@/app/server/course/dto';
 import { DataRenderer } from '@/components/data-renderer';
-import { resolveData, safeFetch } from '@/lib/query/helper';
+import { resolveData, queryFetch } from '@/lib/query/helper';
 import CourseCard from '@/modules/home/courses/components/course-card';
 import { EmptyEnrolledCourses } from '@/modules/home/courses/layout/empty';
 import { NextPagination } from '@/components/ui/next-pagination';
 import { Calendar } from '@/components/ui/calendar';
+import { CompactCalendar } from '@/modules/home/dashboard/components/compact-calendar';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon } from 'lucide-react';
 
 export const WelcomeBanner = async () => {
   const session = await requireSession();
   const username = session.user.name;
 
   return (
-    <div className="order-1 self-start lg:sticky lg:top-20 lg:col-span-1 lg:mx-auto">
-      <h1 className="mb-2 text-2xl font-bold tracking-tight">WELCOME BACK!</h1>
-      <h2 className="text-primary mb-8 text-xl font-bold tracking-wide uppercase">
-        {username}
-      </h2>
-      <div className="mx-auto flex w-full flex-col space-y-3 max-lg:hidden">
-        <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase">
-          Calendar
-        </h2>
-        <Calendar
-          mode="single"
-          className="ring-border/20 rounded-lg border ring-3"
-        />
+    <div className="order-1 mx-auto flex w-full self-start lg:sticky lg:top-20 lg:col-span-1 lg:justify-center">
+      <div className="flex flex-col items-start max-lg:w-full sm:flex-row sm:items-center lg:flex-col lg:items-start">
+        <div className="my-auto h-fit space-y-2 max-lg:w-full">
+          <h1 className="text-2xl leading-none font-bold tracking-tight">
+            WELCOME BACK!
+          </h1>
+          <h2 className="text-primary text-xl leading-none font-bold tracking-wide uppercase max-sm:mb-4 lg:mb-8">
+            {username}
+          </h2>
+        </div>
+        <div className="mx-auto flex w-full flex-col space-y-3 sm:w-fit">
+          <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase max-lg:hidden">
+            Calendar
+          </h2>
+          <Calendar
+            mode="single"
+            className="ring-border/20 rounded-lg border ring-3 max-lg:hidden"
+          />
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="pointer-events-none size-17 rounded-lg bg-transparent! max-md:hidden lg:hidden"
+            >
+              <CalendarIcon className="text-muted-foreground size-10" />
+            </Button>
+            <CompactCalendar className="w-full justify-center sm:w-fit lg:hidden" />
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -55,11 +73,11 @@ export function getDashboardCourses({
     });
 
     const [enrolledResult, availableResult] = await Promise.all([
-      safeFetch<PublicCourseListDTO>(
+      queryFetch<PublicCourseListDTO>(
         queryClient.fetchQuery(enrolledOptions),
         'Failed to fetch enrolled courses'
       ),
-      safeFetch<PublicCourseListDTO>(
+      queryFetch<PublicCourseListDTO>(
         queryClient.fetchQuery(availableOptions),
         'Failed to fetch available courses'
       ),

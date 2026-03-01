@@ -3,7 +3,7 @@ import { getQueryClient } from '@/lib/query/hydration';
 import { PublicCourseListDTO } from '@/app/server/course/dto';
 import { DataRenderer } from '@/components/data-renderer';
 import { NextPagination } from '@/components/ui/next-pagination';
-import { resolveData, safeFetch } from '@/lib/query/helper';
+import { resolveData, queryFetch } from '@/lib/query/helper';
 import CourseCard from '@/modules/home/courses/components/course-card';
 import { EmptyCourseList } from '@/modules/home/courses/layout/empty';
 
@@ -24,7 +24,7 @@ export async function CourseList({
     },
   });
 
-  const result = await safeFetch<PublicCourseListDTO>(
+  const result = await queryFetch<PublicCourseListDTO>(
     queryClient.fetchQuery(queryOptions),
     'Failed to get courses'
   );
