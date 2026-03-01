@@ -12,7 +12,7 @@ export function getErrorMessage(
   return error instanceof Error ? error.message : message;
 }
 
-export async function safeFetch<T>(
+export async function queryFetch<T>(
   promise: Promise<T>,
   fallbackMessage: string
 ): Promise<Result<T, FetchError>> {
