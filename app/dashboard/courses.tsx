@@ -17,33 +17,31 @@ export const WelcomeBanner = async () => {
   const username = session.user.name;
 
   return (
-    <div className="order-1 mx-auto flex w-full self-start lg:sticky lg:top-20 lg:col-span-1 lg:justify-center">
-      <div className="flex flex-col items-start max-lg:w-full sm:flex-row sm:items-center lg:flex-col lg:items-start">
-        <div className="my-auto h-fit space-y-2 max-lg:w-full">
-          <h1 className="text-2xl leading-none font-bold tracking-tight">
-            WELCOME BACK!
-          </h1>
-          <h2 className="text-primary text-xl leading-none font-bold tracking-wide uppercase max-sm:mb-4 lg:mb-8">
-            {username}
-          </h2>
-        </div>
-        <div className="mx-auto flex w-full flex-col space-y-3 sm:w-fit">
-          <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase max-lg:hidden">
-            Calendar
-          </h2>
-          <Calendar
-            mode="single"
-            className="ring-border/20 rounded-lg border ring-3 max-lg:hidden"
-          />
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              className="pointer-events-none size-17 rounded-lg bg-transparent! max-md:hidden lg:hidden"
-            >
-              <CalendarIcon className="text-muted-foreground size-10" />
-            </Button>
-            <CompactCalendar className="w-full justify-center sm:w-fit lg:hidden" />
-          </div>
+    <div className="flex flex-col items-start max-lg:w-full sm:flex-row sm:items-center lg:flex-col lg:items-start">
+      <div className="my-auto h-fit space-y-2 max-lg:w-full">
+        <h1 className="text-2xl leading-none font-bold tracking-tight">
+          WELCOME BACK!
+        </h1>
+        <h2 className="text-primary text-xl leading-none font-bold tracking-wide uppercase max-sm:mb-4 lg:mb-8">
+          {username}
+        </h2>
+      </div>
+      <div className="mx-auto flex w-full flex-col space-y-3 sm:w-fit">
+        <h2 className="text-muted-foreground text-sm font-medium tracking-wider uppercase max-lg:hidden">
+          Calendar
+        </h2>
+        <Calendar
+          mode="single"
+          className="ring-border/30 mb-0 rounded-lg border ring-3 max-lg:hidden"
+        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="pointer-events-none size-17 rounded-lg bg-transparent! max-md:hidden lg:hidden"
+          >
+            <CalendarIcon className="text-muted-foreground size-10" />
+          </Button>
+          <CompactCalendar className="w-full justify-center sm:w-fit lg:hidden" />
         </div>
       </div>
     </div>
