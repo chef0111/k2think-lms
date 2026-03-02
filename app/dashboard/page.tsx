@@ -3,6 +3,7 @@ import { Header } from '@/modules/home/header';
 import { WelcomeBanner, getDashboardCourses } from './courses';
 import { FilterProvider } from '@/context/filter-provider';
 import { FilterContent, FilterSelect, SortSelect } from '@/components/filter';
+import Link from 'next/link';
 import {
   CourseSortOptions,
   EnrolledCourseFilterOptions,
@@ -10,11 +11,11 @@ import {
 import {
   CourseCardSkeleton,
   CourseSkeleton,
-  WelcomeBannerFallback,
 } from '@/modules/home/courses/layout/loading';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { WelcomeBannerFallback } from '@/modules/home/dashboard/layout/loading';
+import { Settings2 } from 'lucide-react';
 
 export default function Dashboard({ searchParams }: RouteParams) {
   const { EnrolledCourses, AvailableCourses } = getDashboardCourses({
@@ -26,9 +27,11 @@ export default function Dashboard({ searchParams }: RouteParams) {
       <Header />
       <section className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-          <Suspense fallback={<WelcomeBannerFallback />}>
-            <WelcomeBanner />
-          </Suspense>
+          <div className="order-1 mx-auto flex w-full self-start lg:sticky lg:top-20 lg:col-span-1 lg:justify-center">
+            <Suspense fallback={<WelcomeBannerFallback />}>
+              <WelcomeBanner />
+            </Suspense>
+          </div>
 
           {/* Enrolled Courses */}
           <FilterProvider>
@@ -76,7 +79,9 @@ export default function Dashboard({ searchParams }: RouteParams) {
               Available Courses
             </h2>
             <Button variant="outline" asChild>
-              <Link href="/courses">View All</Link>
+              <Link href="/courses">
+                <Settings2 /> View All
+              </Link>
             </Button>
           </div>
 
